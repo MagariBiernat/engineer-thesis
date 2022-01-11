@@ -1,7 +1,13 @@
+import { ServerResponse } from "http"
+import { allProjectsFetchInterface } from "lib/types/project"
 import React from "react"
 
+type responseType = {
+  data: allProjectsFetchInterface
+}
+
 const useFetch = (url: string, method: string, token: string) => {
-  const [response, setResponse] = React.useState(null)
+  const [response, setResponse] = React.useState<Partial<responseType>>()
   const [error, setError] = React.useState<unknown>(null)
   const [loading, setLoading] = React.useState(false)
 

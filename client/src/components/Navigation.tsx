@@ -24,6 +24,7 @@ import {
 import { useNavigate } from "react-router"
 import { useAuth } from "context/AuthContext"
 import Logo from "assets/images/Logo.png"
+import ThemeToggleButton from "./ThemeToggleButton"
 
 export default function WithSubnavigation() {
   const auth = useAuth()
@@ -79,6 +80,7 @@ export default function WithSubnavigation() {
           direction={"row"}
           spacing={6}
         >
+          <ThemeToggleButton />
           {auth.user ? (
             <Button
               onClick={() => navigate("/app")}

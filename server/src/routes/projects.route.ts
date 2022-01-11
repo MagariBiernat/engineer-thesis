@@ -11,25 +11,34 @@ router.get("/all", async (req, res) => {
   const token = req.get("authorization")!.split(" ")[1]
   const { id } = decodeToken(token)
 
-  Project.find({
-    $or: [
-      {
-        owner: id,
-      },
-      {
-        collaborators: id,
-      },
-    ],
-  })
-    .sort({ updatedAt: "desc" })
-    .exec((error: any, results: any) => {
-      if (error) {
-        console.log(error)
-        return res.status(404).json({ message: "Error fetchin data", error })
-      }
+  const exclude = {
+    columns: 0,
+    files: 0,
+  }
 
-      return res.json({ data: results })
+  try {
+    const ownerProjects = await Project.find({ owner: id }, exclude)
+      .sort({ updatedAt: "desc" })
+      .exec()
+    const collaboratorProjects = await Project.find({
+      collaborators: id,
+      owner: {
+        $ne: id,
+      },
     })
+      .sort({ updatedAt: "desc" })
+      .exec()
+
+    const results = {
+      owner: ownerProjects,
+      collaborator: collaboratorProjects,
+    }
+
+    return res.json({ data: results })
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({ message: "Error while fetching data" })
+  }
 })
 
 //post new project
@@ -75,6 +84,26 @@ router.post("/new", async (req, res) => {
 })
 
 //delete project
-router.delete("/")
+router.delete("/", async (req, res) => {
+  const { projectId } = req.body
+
+  if (!projectId) {
+    return res.status(400).json({
+      message: "Project id not specified",
+    })
+  }
+
+  Project.deleteOne({ _id: projectId }, (err) => {
+    if (err) {
+      return res.status(400).json({
+        message: "Error while deleting project.",
+      })
+    } else {
+      return res.json({
+        message: "Project deleted.",
+      })
+    }
+  })
+})
 
 export default router

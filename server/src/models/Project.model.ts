@@ -70,7 +70,6 @@ const ColumnSchema = new Schema(
     },
     tasks: [TaskSchema],
     comments: [CommentSchema],
-    default: [],
   },
   { timestamps: true }
 )
@@ -97,7 +96,6 @@ const ProjectSchema = new Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "users",
-        default: [],
       },
     ],
 
@@ -127,31 +125,33 @@ ProjectSchema.pre("find", function (this: any, next: HookNextFunction) {
 
 //TODO fix this' interface
 ProjectSchema.pre("save", function (this: any, next: HookNextFunction) {
-  //owner's id
-  const { id } = this
-  //every new project should have some default columns in it
-  const defaultColumns = [
-    {
-      name: "Todo",
-      hidden: false,
-      createdBy: id,
-    },
-    {
-      name: "In progress",
-      hidden: false,
-      createdBy: id,
-    },
-    {
-      name: "Done",
-      hidden: false,
-      createdBy: id,
-    },
-  ]
+  if (this.isNew) {
+    //owner's id
+    const { id } = this
+    //every new project should have some default columns in it
+    const defaultColumns = [
+      {
+        name: "Todo",
+        hidden: false,
+        createdBy: id,
+      },
+      {
+        name: "In progress",
+        hidden: false,
+        createdBy: id,
+      },
+      {
+        name: "Done",
+        hidden: false,
+        createdBy: id,
+      },
+    ]
 
-  //save those default columns
-  this.columns = defaultColumns
+    //save those default columns
+    this.columns = defaultColumns
 
-  //save
+    //save
+  }
   next()
 })
 

@@ -9,11 +9,6 @@ const JwtStrategy = passportjwt.Strategy
 const ExtractJwt = passportjwt.ExtractJwt
 const SECRET_KEY = process.env.SECRET_KEY
 
-// interface optsInterface {
-// 	jwtFromRequest?: ReturnType<typeof passportjwt.ExtractJwt.fromAuthHeaderWithScheme>
-// 	secretOrKey?: string
-// }
-
 const opts: any = {}
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken()
 opts.secretOrKey = SECRET_KEY

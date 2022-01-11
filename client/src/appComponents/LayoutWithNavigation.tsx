@@ -36,6 +36,7 @@ import { IconType } from "react-icons"
 import { ReactText } from "react"
 import { User } from "context/AuthContext"
 import { useLocation, useNavigate } from "react-router"
+import ThemeToggleButton from "components/ThemeToggleButton"
 
 interface LinkItemProps {
   name: string
@@ -144,8 +145,11 @@ interface NavItemProps extends FlexProps {
 }
 const NavItem = ({ icon, children, href, name, ...rest }: NavItemProps) => {
   const location = useLocation()
-  const active = location.pathname === href
-  console.log(location.pathname, href, name)
+  let active = location.pathname === href
+
+  if (location.pathname === "/app" && name === "Dashboard") {
+    active = true
+  }
   return (
     <Link style={{ textDecoration: "none" }}>
       <Flex
@@ -221,6 +225,7 @@ const MobileNav = ({
       </Text>
 
       <HStack spacing={{ base: "0", md: "6" }}>
+        <ThemeToggleButton />
         <IconButton
           size="lg"
           variant="ghost"

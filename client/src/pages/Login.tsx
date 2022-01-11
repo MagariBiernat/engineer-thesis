@@ -73,11 +73,8 @@ const Login = () => {
         }
       })
       .catch((err) => {
-        console.log(err)
+        console.warn(err)
       })
-
-    console.log(formValues)
-
     setLoading(false)
   }
 

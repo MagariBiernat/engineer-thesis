@@ -12,6 +12,8 @@ import React from "react"
 import { BACKEND_URI } from "lib/config"
 import useFetch from "lib/hooks/useFetch"
 import { AuthContext } from "context/AuthContext"
+import { projectInterface } from "lib/types/project"
+import ListOfProjects from "appComponents/projects/ListOfProjects"
 
 const Projects = () => {
   const { user } = React.useContext(AuthContext)
@@ -30,12 +32,12 @@ const Projects = () => {
     return <div>error</div>
   }
 
-  if (response) {
+  if (response !== null) {
     console.log(response)
     return (
       <>
         <Box width="full" p={2}>
-          <Box width="full" p={1}>
+          <Box width="full" p={4}>
             <Flex
               justifyItems="flex-end"
               align="center"
@@ -51,13 +53,7 @@ const Projects = () => {
               </Button>
             </Flex>
           </Box>
-          <Box>
-            {/* {projects.length > 0 ? (
-              projects.map((item, index) => <div>hey</div>)
-            ) : (
-              <Container>No projects</Container>
-            )} */}
-          </Box>
+          <ListOfProjects data={response?.data} />
         </Box>
         <NewProjectModal isOpen={isOpen} onClose={onClose} />
       </>
