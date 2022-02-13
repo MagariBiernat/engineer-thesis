@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/engineer-thesis/static/css/main.343cb5e3.css",
+    "main.js": "/engineer-thesis/static/js/main.d80600e3.js",
+    "static/js/787.44e022fc.chunk.js": "/engineer-thesis/static/js/787.44e022fc.chunk.js",
+    "static/media/Logo.png": "/engineer-thesis/static/media/Logo.b56100b316453ec0835d.png",
+    "index.html": "/engineer-thesis/index.html",
+    "main.343cb5e3.css.map": "/engineer-thesis/static/css/main.343cb5e3.css.map",
+    "main.d80600e3.js.map": "/engineer-thesis/static/js/main.d80600e3.js.map",
+    "787.44e022fc.chunk.js.map": "/engineer-thesis/static/js/787.44e022fc.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.343cb5e3.css",
+    "static/js/main.d80600e3.js"
+  ]
+}
