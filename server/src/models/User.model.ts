@@ -1,8 +1,9 @@
-import mongoose from "mongoose"
+import mongoose, { Model } from "mongoose"
+import { UserInterface } from "../lib/interfaces/User.interface"
 
 const Schema = mongoose.Schema
 
-const UserSchema = new Schema({
+const UserSchema = new Schema<UserInterface, Model<UserInterface>>({
   fullName: {
     type: String,
     required: true,
@@ -25,11 +26,6 @@ const UserSchema = new Schema({
   profilePicture: {
     type: String,
     default: "none",
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-    immutable: true,
   },
   lastLoggedIn: {
     type: Date,
