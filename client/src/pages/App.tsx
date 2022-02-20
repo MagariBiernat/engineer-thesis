@@ -1,13 +1,12 @@
 import Layout from "appComponents/LayoutWithNavigation"
-import { useAuth } from "context/AuthContext"
-import React from "react"
 import { Outlet } from "react-router"
+import { useTypedSelector } from "redux/store"
 
 const App = () => {
-  const auth = useAuth()
+  const { user } = useTypedSelector((state) => state.auth)
 
   return (
-    <Layout setAuth={auth.setUser} user={auth.user!}>
+    <Layout user={user!}>
       <Outlet />
     </Layout>
   )

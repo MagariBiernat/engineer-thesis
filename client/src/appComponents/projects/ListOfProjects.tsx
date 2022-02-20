@@ -1,60 +1,21 @@
-import {
-  Box,
-  Container,
-  Flex,
-  Heading,
-  Text,
-  useColorModeValue,
-} from "@chakra-ui/react"
-import { allProjectsFetchInterface, projectInterface } from "lib/types/project"
+import { Box, Flex, Text } from "@chakra-ui/react"
+import { projectInterface } from "lib/types/project"
 import React from "react"
-import { useNavigate } from "react-router-dom"
-
-interface ProjectProps {
-  item: projectInterface
-}
-
-//TODO: add default background picure
-
-const Project: React.FunctionComponent<ProjectProps> = ({ item }) => {
-  const navigate = useNavigate()
-
-  return (
-    <Box
-      minH="160px"
-      minW="240px"
-      bg={useColorModeValue("white", "gray.800")}
-      rounded="lg"
-      mr="6"
-      p={3}
-      boxShadow={"dark-lg"}
-      transition="all .4s"
-      _hover={{
-        bg: useColorModeValue("gray.100", "gray.900"),
-        cursor: "pointer",
-      }}
-      onClick={() => navigate(`/app/project/${item._id}`)}
-    >
-      <Flex direction="column">
-        <Text>{item.name}</Text>
-        {item.description && <Text>{item.description}</Text>}
-        {/* number of collaborators */}
-        {/* owner name */}
-      </Flex>
-    </Box>
-  )
-}
+import Project from "./ProjectElement"
 
 interface ListOfProjectsProps {
-  data?: allProjectsFetchInterface
+  owner: projectInterface[]
+  collaborator: projectInterface[]
 }
 
 const ListOfProjects: React.FunctionComponent<ListOfProjectsProps> = ({
-  data,
+  owner,
+  collaborator,
 }) => {
+  console.log(owner)
   return (
     <>
-      {data && (
+      {owner && collaborator && (
         <Box p={4}>
           <Text pl={4}>Your projects</Text>
           <Flex
@@ -64,10 +25,8 @@ const ListOfProjects: React.FunctionComponent<ListOfProjectsProps> = ({
             direction={{ base: "row" }}
             p={4}
           >
-            {data.owner.length > 0 ? (
-              data.owner.map((item, index) => (
-                <Project item={item} key={index} />
-              ))
+            {owner.length > 0 ? (
+              owner.map((item, index) => <Project item={item} key={index} />)
             ) : (
               <NoProjects text="You don't own any projects" />
             )}
@@ -82,8 +41,8 @@ const ListOfProjects: React.FunctionComponent<ListOfProjectsProps> = ({
             direction={{ base: "row" }}
             p={4}
           >
-            {data.collaborator.length > 0 ? (
-              data.collaborator.map((item, index) => (
+            {collaborator.length > 0 ? (
+              collaborator.map((item, index) => (
                 <Project item={item} key={index} />
               ))
             ) : (

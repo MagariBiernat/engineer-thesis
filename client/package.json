@@ -1,6 +1,7 @@
 {
   "name": "client",
   "version": "0.1.0",
+  "homepage": "https://magariBiernat.github.io/engineer-thesis",
   "private": true,
   "dependencies": {
     "@chakra-ui/icons": "^1.1.1",
@@ -16,19 +17,25 @@
     "@types/react": "^17.0.37",
     "@types/react-dom": "^17.0.11",
     "@types/react-router-dom": "^5.3.2",
+    "@types/redux-persist": "^4.3.1",
     "dotenv": "^8.2.0",
     "framer-motion": "^4.1.17",
     "jwt-decode": "^3.1.2",
     "mongo-image-converter": "^1.0.2",
     "react": "^17.0.2",
+    "react-beautiful-dnd": "^13.1.0",
     "react-dom": "^17.0.2",
     "react-icons": "^4.3.1",
     "react-router-dom": "^6.0.2",
-    "react-scripts": "4.0.3",
+    "react-scripts": "^5.0.0",
+    "redux-persist": "^6.0.0",
+    "styled-components": "^5.3.3",
     "typescript": "^4.5.2",
     "web-vitals": "^1.1.2"
   },
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -51,5 +58,14 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@reduxjs/toolkit": "^1.7.2",
+    "@rtk-incubator/rtk-query": "^0.3.0",
+    "@types/react-beautiful-dnd": "^13.1.2",
+    "@types/react-dnd": "^3.0.2",
+    "@types/react-dnd-html5-backend": "^3.0.2",
+    "@types/styled-components": "^5.1.22",
+    "gh-pages": "^3.2.3"
   }
 }

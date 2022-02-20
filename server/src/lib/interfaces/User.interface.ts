@@ -1,6 +1,6 @@
-import { SchemaTimestampsConfig } from "mongoose"
+import MongoDocument from "./Document.interface"
 
-export interface UserInterface extends SchemaTimestampsConfig {
+export interface UserInterface extends MongoDocument {
   fullName: string
   email: string
   password: string

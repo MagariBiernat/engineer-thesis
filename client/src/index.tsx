@@ -6,15 +6,19 @@ import reportWebVitals from "./reportWebVitals"
 import { ChakraProvider } from "@chakra-ui/react"
 import theme from "lib/theme"
 import { BrowserRouter } from "react-router-dom"
-import AuthContextProvider from "context/AuthContext"
+import { Provider } from "react-redux"
+import { persistor, store } from "redux/store"
+import { PersistGate } from "redux-persist/integration/react"
 
 ReactDOM.render(
   <ChakraProvider theme={theme}>
     <React.StrictMode>
       <BrowserRouter>
-        <AuthContextProvider>
-          <App />
-        </AuthContextProvider>
+        <Provider store={store}>
+          <PersistGate loading={null} persistor={persistor}>
+            <App />
+          </PersistGate>
+        </Provider>
       </BrowserRouter>
     </React.StrictMode>
   </ChakraProvider>,

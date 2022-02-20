@@ -70,11 +70,9 @@ router.post("/signup", async (req, res) => {
     return res.status(400).json(errors)
   }
 
-  console.log(req.body)
-
   User.findOne({ email: req.body.email }).then(async (user: any) => {
     if (user) {
-      return res.status(400).json({ email: "Email already exists" })
+      return res.status(401).json({ email: "Email already exists" })
     } else {
       const salt = await bcrypt.genSalt(10)
 
@@ -109,7 +107,7 @@ router.post("/signup", async (req, res) => {
             (err, token) => {
               if (err) {
                 return res
-                  .status(400)
+                  .status(403)
                   .json({ error: err, message: "Problem with receiving token" })
               }
 
@@ -124,7 +122,7 @@ router.post("/signup", async (req, res) => {
           )
         })
         .catch((err) => {
-          return res.status(400).json({
+          return res.status(500).json({
             error: err,
             message: "Problem occured while saving document to database",
           })

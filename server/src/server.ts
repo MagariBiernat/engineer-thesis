@@ -10,6 +10,7 @@ import passportConfig from "./lib/passport"
 //import routings
 import user from "./routes/user.route"
 import projects from "./routes/projects.route"
+import tasks from "./routes/tasks.route"
 
 const app = express()
 
@@ -26,6 +27,7 @@ app.use((req, res, next) => {
 //routes
 app.use("/auth", user)
 app.use("/projects", passport.authenticate("jwt", { session: false }), projects)
+app.use("/tasks", passport.authenticate("jwt", { session: false }), tasks)
 
 //pasport
 passportConfig(passport)

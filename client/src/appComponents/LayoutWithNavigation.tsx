@@ -34,9 +34,11 @@ import {
 } from "react-icons/fi"
 import { IconType } from "react-icons"
 import { ReactText } from "react"
-import { User } from "context/AuthContext"
 import { useLocation, useNavigate } from "react-router"
 import ThemeToggleButton from "components/ThemeToggleButton"
+import { useAppDispatch } from "redux/store"
+import { logout } from "redux/slices/authSlice"
+import { User } from "redux/services/auth"
 
 interface LinkItemProps {
   name: string
@@ -53,17 +55,16 @@ const LinkItems: Array<LinkItemProps> = [
 
 export default function Layout({
   children,
-  setAuth,
   user,
 }: {
   children: ReactNode
-  setAuth: (v: any | undefined) => void
   user: User
 }) {
+  const dispatch = useAppDispatch()
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   const handleLogoutUser = () => {
-    return setAuth(undefined)
+    return dispatch(logout())
   }
 
   return (
@@ -189,7 +190,7 @@ interface MobileProps extends FlexProps {
   fullName: string
   profilePicture: string
 }
-const MobileNav = ({
+export const MobileNav = ({
   onOpen,
   handleLogoutUser,
   fullName,

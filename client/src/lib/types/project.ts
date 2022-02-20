@@ -11,6 +11,7 @@ export interface commentsInterface {
 }
 
 export interface taskInterface {
+  _id: string
   title: string
   description: string
   priority: string
@@ -22,8 +23,7 @@ export interface columnInterface {
   name: string
   createdBy: string
   hidden: boolean
-  //TODO: interface tasks
-  tasks: string[]
+  tasks: taskInterface[]
 }
 
 export interface projectInterface {
@@ -40,6 +40,8 @@ export interface projectInterface {
 }
 
 export interface allProjectsFetchInterface {
-  owner: projectInterface[]
-  collaborator: projectInterface[]
+  data: {
+    owner: projectInterface[]
+    collaborator: projectInterface[]
+  }
 }

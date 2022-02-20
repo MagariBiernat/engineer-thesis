@@ -22,12 +22,13 @@ import {
   ChevronRightIcon,
 } from "@chakra-ui/icons"
 import { useNavigate } from "react-router"
-import { useAuth } from "context/AuthContext"
 import Logo from "assets/images/Logo.png"
 import ThemeToggleButton from "./ThemeToggleButton"
+import { selectIsAuthenticated } from "redux/slices/authSlice"
+import { useSelector } from "react-redux"
 
 export default function WithSubnavigation() {
-  const auth = useAuth()
+  const isAuthenticated = useSelector(selectIsAuthenticated)
   const { isOpen, onToggle } = useDisclosure()
   const navigate = useNavigate()
 
@@ -81,7 +82,7 @@ export default function WithSubnavigation() {
           spacing={6}
         >
           <ThemeToggleButton />
-          {auth.user ? (
+          {isAuthenticated ? (
             <Button
               onClick={() => navigate("/app")}
               fontSize={"sm"}

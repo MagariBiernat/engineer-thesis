@@ -9,7 +9,7 @@ import Projects from "pages/app/Projects"
 import { Container } from "@chakra-ui/layout"
 import { Routes, Route } from "react-router"
 import ProtectedRoute from "utils/ProtectedRoute"
-import Project from "pages/app/Project"
+import Project from "pages/app/Project/Project"
 
 function App() {
   return (
@@ -29,8 +29,8 @@ function App() {
         >
           <Route index element={<Dashboard />} />
           <Route path="projects" element={<Projects />} />
-          <Route path="project/:id" element={<Project />} />
         </Route>
+        <Route path="/app/project/:id" element={<Project />} />
       </Routes>
     </Container>
   )

@@ -1,7 +1,8 @@
-import { useAuth } from "context/AuthContext"
 import React from "react"
 import { Navigate, useLocation } from "react-router"
 import jwtDecode from "jwt-decode"
+import { useAppDispatch, useTypedSelector } from "redux/store"
+import { logout } from "redux/slices/authSlice"
 
 interface Decoded {
   id: string
@@ -11,21 +12,21 @@ interface Decoded {
 }
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-  const auth = useAuth()
+  const { user } = useTypedSelector((state) => state.auth)
+  const dispatch = useAppDispatch()
   const location = useLocation()
 
   React.useEffect(() => {
-    if (auth.user) {
-      const decoded: Decoded = jwtDecode(auth.user.token)
+    if (user) {
+      const decoded: Decoded = jwtDecode(user.token)
 
       if (Date.now() >= decoded.exp * 1000) {
-        auth.setUser(undefined)
-        //FIXME: implement toast
+        dispatch(logout())
       }
     }
   }, [location])
 
-  if (!auth.user) return <Navigate to="/login" state={{ from: location }} />
+  if (!user) return <Navigate to="/login" state={{ from: location }} />
 
   return children
 }

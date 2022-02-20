@@ -5,7 +5,7 @@ import { mode } from "@chakra-ui/theme-tools"
 const styles: { global: (props: any) => void } = {
   global: (props) => ({
     body: {
-      bg: mode("#fafafa", "#020202")(props),
+      bg: mode("#fafafa", "#050202")(props),
       color: mode("#141414", "#f0e7db")(props),
     },
   }),

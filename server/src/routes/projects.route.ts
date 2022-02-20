@@ -4,12 +4,14 @@ import express from "express"
 
 import Project from "../models/Project.model"
 import decodeToken from "../lib/decodeToken"
+import { Mongoose, Types } from "mongoose"
 const router = express.Router()
 
 //get all projects for user x
 router.get("/all", async (req, res) => {
   const token = req.get("authorization")!.split(" ")[1]
   const { id } = decodeToken(token)
+  const userId = Types.ObjectId(id)
 
   const exclude = {
     columns: 0,
@@ -21,7 +23,7 @@ router.get("/all", async (req, res) => {
       .sort({ updatedAt: "desc" })
       .exec()
     const collaboratorProjects = await Project.find({
-      collaborators: id,
+      "collaborators.user": { _id: userId },
       owner: {
         $ne: id,
       },
@@ -41,13 +43,40 @@ router.get("/all", async (req, res) => {
   }
 })
 
+router.get("/project", async (req, res) => {
+  const { projectId } = req.query
+
+  if (!projectId)
+    return res.status(406).json({ message: "Something went wrong" })
+
+  //get user's id from token
+  const { id } = decodeToken(req.get("authorization")!.split(" ")[1])
+
+  try {
+    const project = await Project.find({ owner: id, _id: projectId }).exec()
+
+    if (project.length === 1) return res.json({ ...project[0]._doc })
+
+    throw Error("!")
+  } catch (err) {
+    return res.status(500).json({ message: "Error while fetching data" })
+  }
+})
+
+/*
+
+406 -> name not specified
+ 409 -> project with this name already exists among this users' projects
+ 400 -> error while creating project
+
+*/
 //post new project
 router.post("/new", async (req, res) => {
-  const { name, description } = req.body
+  const { name, description, isPersonal } = req.body
 
   //validate name is specified
   if (!name) {
-    return res.status(400).json({ message: "No name specified" })
+    return res.status(406).json({ message: "No name specified" })
   }
 
   //get user's id from token
@@ -62,14 +91,15 @@ router.post("/new", async (req, res) => {
   // if result is not empty, length > 0, return error
   if (alreadyExistsWithSameName?.length > 0) {
     return res
-      .status(400)
+      .status(409)
       .json({ message: "Project with same name already exists" })
   } else {
     const newProject = new Project({
       name: name,
       owner: id,
-      description: description,
-      collaborators: [id],
+      description: description || "",
+      collaborators: [{ user: id, role: "Owner" }],
+      isPersonal: isPersonal || false,
     })
 
     newProject
@@ -78,7 +108,7 @@ router.post("/new", async (req, res) => {
         return res.json({ message: "Project created successfully" })
       })
       .catch((err) => {
-        return res.status(400).json({ message: "An error occured", err })
+        return res.status(400).json({ message: "An error occurred", err })
       })
   }
 })
@@ -87,18 +117,22 @@ router.post("/new", async (req, res) => {
 router.delete("/", async (req, res) => {
   const { projectId } = req.body
 
+  //check if id was specified in request's body
   if (!projectId) {
     return res.status(400).json({
       message: "Project id not specified",
     })
   }
 
+  // delete project
   Project.deleteOne({ _id: projectId }, (err) => {
     if (err) {
+      //fail
       return res.status(400).json({
         message: "Error while deleting project.",
       })
     } else {
+      //success
       return res.json({
         message: "Project deleted.",
       })

@@ -1,7 +1,16 @@
-import mongoose, { HookNextFunction } from "mongoose"
+import mongoose, { HookNextFunction, Model } from "mongoose"
+import {
+  ColumnSchemaInterface,
+  CommentSchemaInterface,
+  ProjectSchemaInterface,
+  TaskSchemaInterface,
+} from "../lib/interfaces/Project.interface"
 const Schema = mongoose.Schema
 
-const CommentSchema = new Schema(
+const CommentSchema = new Schema<
+  CommentSchemaInterface,
+  Model<CommentSchemaInterface>
+>(
   {
     content: {
       type: String,
@@ -21,7 +30,7 @@ const CommentSchema = new Schema(
   { timestamps: true }
 )
 
-const TaskSchema = new Schema(
+const TaskSchema = new Schema<TaskSchemaInterface, Model<TaskSchemaInterface>>(
   {
     title: {
       type: String,
@@ -30,7 +39,7 @@ const TaskSchema = new Schema(
 
     description: {
       type: String,
-      required: true,
+      required: false,
     },
 
     priority: {
@@ -43,14 +52,17 @@ const TaskSchema = new Schema(
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "users",
-      required: true,
+      required: false,
     },
     comments: [CommentSchema],
   },
   { timestamps: true }
 )
 
-const ColumnSchema = new Schema(
+export const ColumnSchema = new Schema<
+  ColumnSchemaInterface,
+  Model<ColumnSchemaInterface>
+>(
   {
     name: {
       type: String,
@@ -74,7 +86,10 @@ const ColumnSchema = new Schema(
   { timestamps: true }
 )
 
-const ProjectSchema = new Schema(
+const ProjectSchema = new Schema<
+  ProjectSchemaInterface,
+  Model<ProjectSchemaInterface>
+>(
   {
     name: {
       type: String,
@@ -94,14 +109,26 @@ const ProjectSchema = new Schema(
 
     collaborators: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "users",
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "users",
+        },
+        role: {
+          type: String,
+          enum: ["Owner", "Moderator", "User"],
+          default: "User",
+        },
       },
     ],
 
     background: {
       type: String,
       default: "default",
+    },
+
+    isPersonal: {
+      type: Boolean,
+      required: true,
     },
 
     files: [
@@ -127,7 +154,7 @@ ProjectSchema.pre("find", function (this: any, next: HookNextFunction) {
 ProjectSchema.pre("save", function (this: any, next: HookNextFunction) {
   if (this.isNew) {
     //owner's id
-    const { id } = this
+    const { owner: id } = this
     //every new project should have some default columns in it
     const defaultColumns = [
       {
@@ -155,6 +182,9 @@ ProjectSchema.pre("save", function (this: any, next: HookNextFunction) {
   next()
 })
 
-const Project = mongoose.model("projects", ProjectSchema)
+const Project = mongoose.model<ProjectSchemaInterface>(
+  "projects",
+  ProjectSchema
+)
 
 export default Project
