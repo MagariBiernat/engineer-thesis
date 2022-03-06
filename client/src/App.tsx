@@ -29,8 +29,8 @@ function App() {
         >
           <Route index element={<Dashboard />} />
           <Route path="projects" element={<Projects />} />
+          <Route path="/app/project/:id" element={<Project />} />
         </Route>
-        <Route path="/app/project/:id" element={<Project />} />
       </Routes>
     </Container>
   )

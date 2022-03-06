@@ -1,11 +1,15 @@
 require("dotenv").config()
 
-import express from "express"
+import express, { NextFunction } from "express"
 
 import Project, { ColumnSchema } from "../models/Project.model"
 import decodeToken from "../lib/decodeToken"
-import { ObjectId } from "mongoose"
-import { TaskSchemaInterface } from "../lib/interfaces/Project.interface"
+import {
+  ColumnSchemaInterface,
+  ProjectSchemaInterface,
+  TaskSchemaInterface,
+} from "../lib/interfaces/Project.interface"
+import authorizeRole from "../lib/middleware/authorizeRole"
 const router = express.Router()
 
 //Create new task
@@ -27,43 +31,17 @@ const router = express.Router()
 
 */
 
-router.post("/newTask", async (req, res) => {
-  console.log("im reachable")
+router.post("/", authorizeRole, async (req, res) => {
   //need projectId, usersId from token, task title, description, priority
-  const { projectId, title, column, description, priority } = req.body
+  const { title, column, description, priority } = req.body
 
   //validate if any required value is empty
-  if (!projectId || !title || !priority || !column) {
+  if (!title || !priority || !column) {
     return res.status(406).json({ message: "No name specified" })
   }
 
-  //get user's id from token
-  const { id } = decodeToken(req.get("authorization")!.split(" ")[1])
+  const project = res.locals.project as ProjectSchemaInterface
 
-  const project = await Project.findOne({ _id: projectId })
-
-  // check if project exists
-
-  if (!project) {
-    return res.status(407).json({ message: "Project doesn't exist" })
-  }
-
-  //validate if user's id is valid for this project
-  // check if user's id is in collaborators array with role Owner or Moderator
-
-  const isUserAllowedToAddNewTask =
-    project.collaborators.filter(
-      (i: any) => i.user == id && (i.role === "Owner" || i.role === "Moderator")
-    ).length === 1
-
-  //this user doesn't have a permission to add task
-  if (!isUserAllowedToAddNewTask) {
-    return res.status(403).json({ message: "User has no permission" })
-  }
-
-  // Project.findByIdAndUpdate({_id: projectId}, {"columns.})
-
-  //get all columns
   const columns = project.columns
 
   const columnToUpdate = columns.find((i) => i.name === column)
@@ -89,17 +67,61 @@ router.post("/newTask", async (req, res) => {
       }
     )
 
-    console.log(result)
     return res.json({ result })
   } catch (err) {
     console.log(err)
     return res.status(500).json({ message: "Error", err })
   }
+})
 
-  console.log(project)
-  console.log(typeof project)
+//new column
+router.post("/column", authorizeRole, async (req, res) => {
+  const { projectId, columnName } = req.body
 
-  // add task
+  if (!projectId || !columnName)
+    return res.status(422).json({ message: "Required fields are empty" })
+
+  const project = res.locals.project as ProjectSchemaInterface
+  const id = res.locals.id
+
+  const newColumn: Partial<ColumnSchemaInterface> = {
+    name: columnName,
+    hidden: false,
+    createdBy: id,
+  }
+
+  await project
+    .updateOne({ $push: { columns: newColumn } })
+    .then(() => res.json({ message: "Column created successfully" }))
+    .catch((err) =>
+      res.status(500).json({ message: "Error occurred", error: err })
+    )
+})
+
+router.delete("/column", authorizeRole, async (req, res) => {
+  const { projectId, columnId } = req.body
+
+  if (!projectId || !columnId)
+    return res.status(422).json({ message: "Required fields are empty" })
+
+  const project = res.locals.project as ProjectSchemaInterface
+
+  const column = project.columns.filter((i) => i._id === columnId)
+
+  project
+    .update({ $popAll: { columns: column } })
+    .then(() => res.json({ message: "Column successfully removed" }))
+    .catch((err) =>
+      res.status(500).json({ message: "Error occurred", error: err })
+    )
+})
+
+//update reordered tasks
+router.put("/", authorizeRole, async (req, res) => {
+  const { projectId, columnId, taskId } = req.body
+
+  if (!projectId || !columnId || !taskId)
+    return res.status(422).json({ message: "Required fields are empty" })
 })
 
 export default router

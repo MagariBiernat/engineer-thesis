@@ -37,6 +37,8 @@ const SignUpForm = () => {
     setFormValues({ ...formValues, [event.target.name]: event.target.value })
   }
 
+  const handleSignup = async () => register(formValues)
+
   const handleSubmitForm = async (event: React.FormEvent) => {
     event.preventDefault()
 
@@ -48,7 +50,7 @@ const SignUpForm = () => {
       return setError("Fill all fields")
     }
 
-    await register(formValues)
+    handleSignup()
   }
 
   React.useEffect(() => {

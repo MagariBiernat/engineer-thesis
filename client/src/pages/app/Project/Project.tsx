@@ -1,38 +1,54 @@
-import { Grid } from "@chakra-ui/react"
+import { Grid, useDisclosure } from "@chakra-ui/react"
 import DndList from "appComponents/project/DndList"
+import TaskDetailsModal from "appComponents/project/TaskDetailsModal"
 import TopBar from "appComponents/project/TopBar"
-import { BACKEND_URI } from "lib/config"
-import useFetch from "lib/hooks/useFetch"
-import { projectInterface } from "lib/types/project"
-import { useLocation, useParams } from "react-router-dom"
 
-const Project = () => {
-  // const { id } = useParams()
-  // const location = useLocation()
+import { columnInterface } from "lib/types/project"
+import React from "react"
+import { useParams } from "react-router-dom"
+import { useGetProjectQuery } from "redux/services/projects"
 
-  // const { response, error, loading } = useFetch(
-  //   `${BACKEND_URI}/projects/project?projectId=${id}`,
-  //   "GET",
-  //   user!.token
-  // )
-
-  // if (loading) return <>loading...</>
-  // if (error) return <>ojc error ${error}</>
-
-  // if (response) {
-  //   const data = response as projectInterface
-  //   //TODO: DIFFERNT LAYOUT
-  //   return (
-  //     <>
-  //       <Grid p={6} pt={12}>
-  //         <TopBar />
-  //         <DndList initial={data.columns!} withScrollableColumns />
-  //       </Grid>
-  //     </>
-  //   )
-  // }
-
-  return <></>
+interface Context {
+  isOpen: boolean
+  onOpen: () => void
+  onClose: () => void
 }
 
-export default Project
+const TaskDetailsModalContext = React.createContext<Context>(null!)
+
+export const useTaskDetailsModal = () =>
+  React.useContext(TaskDetailsModalContext)
+
+const ProjectWrapper = () => {
+  const { isOpen, onOpen, onClose } = useDisclosure()
+
+  return (
+    <>
+      <TaskDetailsModalContext.Provider value={{ isOpen, onOpen, onClose }}>
+        <Project />
+        {isOpen && <TaskDetailsModal isOpen={isOpen} onClose={onClose} />}
+      </TaskDetailsModalContext.Provider>
+    </>
+  )
+}
+
+const Project = () => {
+  const { id = "" } = useParams()
+  const [columns, setColumns] = React.useState<columnInterface[]>([])
+  const { data, isLoading, isError, isSuccess } = useGetProjectQuery({ id })
+
+  React.useEffect(() => {
+    setColumns(data?.columns!)
+  }, [isSuccess])
+
+  return (
+    <>
+      <Grid p={6} pt={12} maxW="100%">
+        <TopBar />
+        <DndList columns={columns} setColumns={setColumns} />
+      </Grid>
+    </>
+  )
+}
+
+export default ProjectWrapper

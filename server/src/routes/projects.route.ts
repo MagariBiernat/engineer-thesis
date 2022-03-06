@@ -8,7 +8,7 @@ import { Mongoose, Types } from "mongoose"
 const router = express.Router()
 
 //get all projects for user x
-router.get("/all", async (req, res) => {
+router.get("/", async (req, res) => {
   const token = req.get("authorization")!.split(" ")[1]
   const { id } = decodeToken(token)
   const userId = Types.ObjectId(id)
@@ -43,8 +43,8 @@ router.get("/all", async (req, res) => {
   }
 })
 
-router.get("/project", async (req, res) => {
-  const { projectId } = req.query
+router.get("/:projectId", async (req, res) => {
+  const { projectId } = req.params
 
   if (!projectId)
     return res.status(406).json({ message: "Something went wrong" })
@@ -71,7 +71,7 @@ router.get("/project", async (req, res) => {
 
 */
 //post new project
-router.post("/new", async (req, res) => {
+router.post("/", async (req, res) => {
   const { name, description, isPersonal } = req.body
 
   //validate name is specified
@@ -104,8 +104,8 @@ router.post("/new", async (req, res) => {
 
     newProject
       .save()
-      .then(() => {
-        return res.json({ message: "Project created successfully" })
+      .then((project) => {
+        return res.json({ message: "Project created successfully", project })
       })
       .catch((err) => {
         return res.status(400).json({ message: "An error occurred", err })

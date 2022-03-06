@@ -29,7 +29,7 @@ app.use("/auth", user)
 app.use("/projects", passport.authenticate("jwt", { session: false }), projects)
 app.use("/tasks", passport.authenticate("jwt", { session: false }), tasks)
 
-//pasport
+//passport
 passportConfig(passport)
 app.use(passport.initialize())
 

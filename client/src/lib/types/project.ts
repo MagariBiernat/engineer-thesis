@@ -20,6 +20,7 @@ export interface taskInterface {
 }
 
 export interface columnInterface {
+  _id: string
   name: string
   createdBy: string
   hidden: boolean
@@ -35,6 +36,7 @@ export interface projectInterface {
   owner: userInterface
   //todo files interface
   files: Array<string>
+  isPersonal: boolean
   updatedAt: Date
   columns?: columnInterface[]
 }

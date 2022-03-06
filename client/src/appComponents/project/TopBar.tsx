@@ -1,4 +1,5 @@
 import { Box, Button, Flex } from "@chakra-ui/react"
+import { MobileNav } from "appComponents/LayoutWithNavigation"
 import { useNavigate } from "react-router-dom"
 import NewTask from "./dnd/NewTaskModal"
 
@@ -20,6 +21,7 @@ const GoBack = () => {
 const TopBar = () => {
   return (
     <Flex justifyContent={"space-between"}>
+      {/* <MobileNav /> */}
       <GoBack />
       <NewTask />
     </Flex>

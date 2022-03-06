@@ -30,6 +30,8 @@ const LoginForm = () => {
     setFormValues({ ...formValues, [event.target.name]: event.target.value })
   }
 
+  const handleLogin = async () => login(formValues)
+
   const handleSubmitForm = async (event: React.FormEvent) => {
     event.preventDefault()
 
@@ -37,7 +39,7 @@ const LoginForm = () => {
       return setError("Please fill the form")
     }
 
-    await login(formValues)
+    handleLogin()
   }
 
   React.useEffect(() => {

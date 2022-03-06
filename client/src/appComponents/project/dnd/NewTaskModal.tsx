@@ -58,36 +58,6 @@ const NewTask = () => {
     event.preventDefault()
     setError(null)
     if (!formValues.title || !formValues.priority) return
-
-    setLoading(true)
-
-    try {
-      const res = await fetch(`${BACKEND_URI}/tasks/newTask`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          // Authorization: user!.token,
-        },
-        body: JSON.stringify({ ...formValues, column: column, projectId: id }),
-      })
-
-      console.log(res)
-
-      // if (res.status === 406) return setNameError("Name was not specified")
-
-      // if (res.status === 409)
-      //   return setNameError("Project with this name already exists")
-
-      // if (res.status === 400) {
-      //   return setError("Error occurred")
-      // }
-
-      // alert("Project created successfully")
-    } catch (err) {
-      setError(err)
-    } finally {
-      setTimeout(() => setLoading(false), 1)
-    }
   }
 
   return (

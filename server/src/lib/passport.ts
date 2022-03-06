@@ -1,7 +1,6 @@
 require("dotenv").config()
 
 import passportjwt from "passport-jwt"
-import mongoose = require("mongoose")
 
 import User from "../models/User.model"
 

@@ -5,52 +5,43 @@ import { BACKEND_URI } from "lib/config"
 import useFetch from "lib/hooks/useFetch"
 import ListOfProjects from "appComponents/projects/ListOfProjects"
 import { allProjectsFetchInterface } from "lib/types/project"
+import {
+  useCreateProjectMutation,
+  useGetAllProjectsQuery,
+} from "redux/services/projects"
+import { useTypedSelector } from "redux/store"
 
 const Projects = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
-  // const { response, error, loading } = useFetch(
-  //   `${BACKEND_URI}/projects/all`,
-  //   "GET",
-  //   user!.token
-  // )
+  const [error, setError] = React.useState<string>("")
+  const { refetch, isError } = useGetAllProjectsQuery()
 
-  // if (loading) {
-  //   return <div>loading</div>
-  // }
+  React.useEffect(() => {
+    setError(isError ? "Error occurred" : "")
+  }, [isError])
 
-  // if (error) {
-  //   return <div>error</div>
-  // }
-
-  // if (response) {
-  //   const { data } = response as allProjectsFetchInterface
-  //   return (
-  //     <>
-  //       <Box width="full" p={2}>
-  //         <Box width="full" p={4}>
-  //           <Flex
-  //             justifyItems="flex-end"
-  //             align="center"
-  //             direction="row-reverse"
-  //           >
-  //             <Button
-  //               bg="blue.600"
-  //               px={8}
-  //               _hover={{ bg: "blue.500" }}
-  //               onClick={onOpen}
-  //             >
-  //               New project
-  //             </Button>
-  //           </Flex>
-  //         </Box>
-  //         <ListOfProjects owner={data.owner} collaborator={data.collaborator} />
-  //       </Box>
-  //       <NewProjectModal isOpen={isOpen} onClose={onClose} />
-  //     </>
-  //   )
-  // }
-
-  return <></>
+  return (
+    <>
+      <Box width="full" p={2}>
+        <Box width="full" p={4}>
+          <Flex justifyItems="flex-end" align="center" direction="row-reverse">
+            <Button
+              bg="blueLight"
+              px={8}
+              _hover={{ bg: "blue.300" }}
+              color="#fafafa"
+              onClick={onOpen}
+              boxShadow="2xl"
+            >
+              New project
+            </Button>
+          </Flex>
+        </Box>
+        <ListOfProjects />
+      </Box>
+      <NewProjectModal isOpen={isOpen} onClose={onClose} />
+    </>
+  )
 }
 
 export default Projects

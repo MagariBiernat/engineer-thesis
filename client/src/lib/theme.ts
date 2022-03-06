@@ -5,7 +5,7 @@ import { mode } from "@chakra-ui/theme-tools"
 const styles: { global: (props: any) => void } = {
   global: (props) => ({
     body: {
-      bg: mode("#fafafa", "#050202")(props),
+      bg: mode("rgb(,246,249,252)", "rgb(25,29,39)")(props),
       color: mode("#141414", "#f0e7db")(props),
     },
   }),
@@ -29,22 +29,23 @@ const components: { Heading: any; Link: { baseStyle: (props: any) => void } } =
     },
     Link: {
       baseStyle: (props) => ({
-        color: mode("#3d7aed", "#fffafa")(props),
+        color: mode("#141414", "#fffafa")(props),
         textUnderlineOffset: 3,
       }),
     },
   }
 
 const fonts = {
-  heading: "'M PLUS Rounded 1c'",
+  body: "Helvetica, sans-serif",
 }
 
 const colors = {
+  blueLight: "#33bfff",
   grassTeal: "#88ccca",
 }
 
 const config = {
-  initialColorMode: "dark",
+  initialColorMode: "white",
   useSystemColorMode: true,
 }
 

@@ -1,7 +1,6 @@
 {
   "name": "client",
   "version": "0.1.0",
-  "homepage": "https://magariBiernat.github.io/engineer-thesis",
   "private": true,
   "dependencies": {
     "@chakra-ui/icons": "^1.1.1",

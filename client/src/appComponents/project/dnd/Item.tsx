@@ -1,67 +1,52 @@
+import { Container, useColorModeValue } from "@chakra-ui/react"
 import { taskInterface } from "lib/types/project"
+import { useTaskDetailsModal } from "pages/app/Project/Project"
 import React from "react"
-import { useDrag, useDrop } from "react-dnd"
+import { Draggable } from "react-beautiful-dnd"
 
 interface Props {
   item: taskInterface
   index: number
-  moveItem: Function
-  status: boolean
 }
+const Item: React.FC<Props> = ({ item, index }) => {
+  const backgroundItem = useColorModeValue("#fff", "#000")
+  const backgroundItemHover = useColorModeValue(
+    "rgb(244,245,247)",
+    "rgb(46,50,52)"
+  )
+  const borderOnHover = useColorModeValue(
+    "rgba(46,50,52, .2)",
+    "rgba(244,245,247, .2)"
+  )
 
-const ITEM_TYPE = "ITEM"
-
-const Item = ({ item, index, moveItem, status }: Props) => {
-  const ref = React.useRef(null)
-
-  // const [, drop] = useDrop({
-  //   accept: ITEM_TYPE,
-  //   hover(item, monitor) {
-  //     if (!ref.current) {
-  //       return
-  //     }
-
-  //     const dragIndex = item.index
-  //     const hoverIndex = index
-
-  //     if (dragIndex === hoverIndex) return
-
-  //     const hoveredRect = ref.current.getBoundClientRec()
-  //     const hoverMiddleY = (hoveredRect.bottom - hoveredRect.top) / 2
-  //     const mousePosition = monitor.getClientOffset()
-  //     const hoverClientY = mousePosition.y - hoveredRect.top
-
-  //     if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) return
-  //     if (dragIndex > hoverIndex && hoverClientY < hoverMiddleY) return
-
-  //     moveItem(dragIndex, hoverIndex)
-  //     item.index = hoverIndex
-  //   },
-  // })
-
-  // const [{ isDragging }, drag] = useDrag({
-  //   item: { type: ITEM_TYPE, ...item, index },
-  //   collect: (monitor) => ({
-  //     isDragging: monitor.isDragging(),
-  //   }),
-  // })
-
-  const [show, setShow] = React.useState(false)
-
-  const onOpen = () => setShow(true)
-
-  const onClose = () => setShow(false)
-
-  console.log(show)
-
-  // drag(drop(ref))
-
+  const { onOpen } = useTaskDetailsModal()
   return (
-    <>
-      <div ref={ref} onClick={onOpen}>
-        <p>{item.title}</p>
-      </div>
-    </>
+    <Draggable draggableId={item._id.toString()} index={index}>
+      {(provided, snapshot) => (
+        <Container
+          {...provided.dragHandleProps}
+          {...provided.draggableProps}
+          ref={provided.innerRef}
+          isDragging={snapshot.isDragging}
+          key={item._id}
+          bg={backgroundItem}
+          style={{
+            ...provided.draggableProps.style,
+          }}
+          border="1px solid transparent"
+          borderRadius="md"
+          p={3}
+          _hover={{
+            boxSizing: "border-box",
+            bg: backgroundItemHover,
+            border: `1px solid ${borderOnHover}`,
+          }}
+          onClick={onOpen}
+        >
+          {item.title}
+        </Container>
+      )}
+    </Draggable>
   )
 }
 

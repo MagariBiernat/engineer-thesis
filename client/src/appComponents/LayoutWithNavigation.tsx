@@ -21,13 +21,11 @@ import {
   MenuDivider,
   MenuItem,
   MenuList,
+  useColorMode,
 } from "@chakra-ui/react"
 import {
   FiHome,
   FiTrendingUp,
-  FiCompass,
-  FiStar,
-  FiSettings,
   FiMenu,
   FiBell,
   FiChevronDown,
@@ -48,9 +46,6 @@ interface LinkItemProps {
 const LinkItems: Array<LinkItemProps> = [
   { name: "Dashboard", icon: FiHome, href: "/app/" },
   { name: "Projects", icon: FiTrendingUp, href: "/app/projects" },
-  // { name: "Explore", icon: FiCompass },
-  // { name: "Favourites", icon: FiStar },
-  // { name: "Settings", icon: FiSettings },
 ]
 
 export default function Layout({
@@ -68,34 +63,15 @@ export default function Layout({
   }
 
   return (
-    <Box minH="100vh">
-      <SidebarContent
-        onClose={() => onClose}
-        display={{ base: "none", md: "block" }}
-      />
-      <Drawer
-        autoFocus={false}
-        isOpen={isOpen}
-        placement="left"
-        onClose={onClose}
-        returnFocusOnClose={false}
-        onOverlayClick={onClose}
-        size="full"
-      >
-        <DrawerContent>
-          <SidebarContent onClose={onClose} />
-        </DrawerContent>
-      </Drawer>
-      {/* mobilenav */}
+    <Box>
+      {isOpen && <SidebarContent onClose={onClose} />}
       <MobileNav
         onOpen={onOpen}
         handleLogoutUser={handleLogoutUser}
         fullName={user.fullName}
         profilePicture={user.profilePicture}
       />
-      <Box ml={{ base: 0, md: 60 }} p="4">
-        {children}
-      </Box>
+      <Box p="4">{children}</Box>
     </Box>
   )
 }
@@ -110,11 +86,18 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
   return (
     <Box
       transition="3s ease"
-      borderRight="1px"
-      borderRightColor={useColorModeValue("gray.200", "gray.900")}
-      w={{ base: "full", md: 60 }}
+      borderBottom="1px"
+      borderBottomColor={useColorModeValue("rgba(20,20,20, .2)", "gray.900")}
+      display={{ base: "block", md: "none" }}
+      background={useColorModeValue("#fafafa", "#020202")}
+      w={{ base: "full" }}
+      pb={4}
+      borderBottomRadius={"md"}
       pos="fixed"
-      h="full"
+      left="0"
+      right="0"
+      h="auto"
+      zIndex={1}
       {...rest}
     >
       <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
@@ -147,6 +130,7 @@ interface NavItemProps extends FlexProps {
 const NavItem = ({ icon, children, href, name, ...rest }: NavItemProps) => {
   const location = useLocation()
   let active = location.pathname === href
+  const colorActive = useColorModeValue("#000", "#fffafa")
 
   if (location.pathname === "/app" && name === "Dashboard") {
     active = true
@@ -155,29 +139,22 @@ const NavItem = ({ icon, children, href, name, ...rest }: NavItemProps) => {
     <Link style={{ textDecoration: "none" }}>
       <Flex
         align="center"
-        p="4"
+        p="6"
         py={2}
         m={4}
         borderRadius="lg"
         role="group"
         cursor="pointer"
-        bg={active ? "orange.400" : "transparent"}
+        color={active ? "#fafafa" : colorActive}
+        boxShadow=""
+        bg={active ? "#00b0ff" : "transparent"}
         _hover={{
-          bg: "orange.400",
+          bg: "#00b0ff",
           color: "white",
         }}
+        letterSpacing="1.1px"
         {...rest}
       >
-        {icon && (
-          <Icon
-            mr="4"
-            fontSize="16"
-            _groupHover={{
-              color: "white",
-            }}
-            as={icon}
-          />
-        )}
         {children}
       </Flex>
     </Link>
@@ -197,17 +174,30 @@ export const MobileNav = ({
   profilePicture,
   ...rest
 }: MobileProps) => {
+  const navigate = useNavigate()
   return (
     <Flex
-      ml={{ base: 0, md: 60 }}
       px={{ base: 4, md: 4 }}
       height="20"
       alignItems="center"
       borderBottomWidth="1px"
       borderBottomColor={useColorModeValue("gray.200", "gray.800")}
-      justifyContent={{ base: "space-between", md: "flex-end" }}
+      justifyContent={{ base: "space-between" }}
       {...rest}
     >
+      <Box display={{ base: "none", md: "flex" }}>
+        {LinkItems.map((link) => (
+          <NavItem
+            key={link.name}
+            name={link.name}
+            icon={link.icon}
+            href={link.href}
+            onClick={() => navigate(`${link.href}`)}
+          >
+            {link.name}
+          </NavItem>
+        ))}
+      </Box>
       <IconButton
         display={{ base: "flex", md: "none" }}
         onClick={onOpen}
@@ -216,14 +206,14 @@ export const MobileNav = ({
         icon={<FiMenu />}
       />
 
-      <Text
+      {/* <Text
         display={{ base: "flex", md: "none" }}
         fontSize="2xl"
         fontFamily="monospace"
         fontWeight="bold"
       >
         Logo
-      </Text>
+      </Text> */}
 
       <HStack spacing={{ base: "0", md: "6" }}>
         <ThemeToggleButton />
@@ -265,13 +255,17 @@ export const MobileNav = ({
             </MenuButton>
             <MenuList
               borderColor={useColorModeValue("gray.200", "gray.700")}
-              bg={useColorModeValue("gray.900", "gray.200")}
-              color={useColorModeValue("gray.200", "gray.900")}
+              bg={useColorModeValue("#33bfff", "gray.200")}
+              color={useColorModeValue("gray.100", "gray.900")}
             >
               <MenuItem>Profile</MenuItem>
               <MenuItem>Settings</MenuItem>
-              <MenuItem>Billing</MenuItem>
-              <MenuDivider />
+              <MenuItem
+                borderBottom="1px solid"
+                borderBottomColor={useColorModeValue("gray100", "gray.600")}
+              >
+                Billing
+              </MenuItem>
               <MenuItem onClick={handleLogoutUser}>Sign out</MenuItem>
             </MenuList>
           </Menu>
