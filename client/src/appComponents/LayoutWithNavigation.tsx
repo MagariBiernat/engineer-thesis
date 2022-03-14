@@ -131,7 +131,10 @@ const NavItem = ({ icon, children, href, name, ...rest }: NavItemProps) => {
   const location = useLocation()
   let active = location.pathname === href
   const colorActive = useColorModeValue("#000", "#fffafa")
-
+  const headingColor = useColorModeValue(
+    "rgb(128,136,154)",
+    "rgba(242,245,248, .6)"
+  )
   if (location.pathname === "/app" && name === "Dashboard") {
     active = true
   }
@@ -141,11 +144,11 @@ const NavItem = ({ icon, children, href, name, ...rest }: NavItemProps) => {
         align="center"
         p="6"
         py={2}
-        m={4}
-        borderRadius="lg"
+        m={2}
+        borderRadius="md"
         role="group"
         cursor="pointer"
-        color={active ? "#fafafa" : colorActive}
+        color={active ? "#fafafa" : headingColor}
         boxShadow=""
         bg={active ? "#00b0ff" : "transparent"}
         _hover={{
@@ -181,7 +184,7 @@ export const MobileNav = ({
       height="20"
       alignItems="center"
       borderBottomWidth="1px"
-      borderBottomColor={useColorModeValue("gray.200", "gray.800")}
+      borderBottomColor={useColorModeValue("gray.200", "gray.700")}
       justifyContent={{ base: "space-between" }}
       {...rest}
     >

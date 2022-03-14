@@ -1,5 +1,5 @@
 import React from "react"
-import { AddIcon, CloseIcon, StarIcon } from "@chakra-ui/icons"
+import { AddIcon, StarIcon } from "@chakra-ui/icons"
 import {
   Box,
   Text,
@@ -18,9 +18,15 @@ import {
   Input,
   Select,
   Flex,
+  useToast,
 } from "@chakra-ui/react"
-import { BACKEND_URI } from "lib/config"
 import { useParams } from "react-router-dom"
+import { useCreateTaskMutation } from "redux/services/currentProject"
+import { columnInterface } from "lib/types/project"
+
+interface Props {
+  columns: columnInterface[]
+}
 
 const initialFormValues = {
   title: "",
@@ -28,18 +34,14 @@ const initialFormValues = {
   priority: "Normal",
 }
 
-const columns = ["Todo", "In progress", "Done"]
+const NewTask: React.FC<Props> = ({ columns }) => {
+  const { id = "" } = useParams()
 
-const NewTask = () => {
   const [formValues, setFormValues] = React.useState(initialFormValues)
-  const [column, setColumn] = React.useState(columns[0])
-  const [error, setError] = React.useState<unknown>()
+  const [column, setColumn] = React.useState<Partial<columnInterface>>()
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const [loading, setLoading] = React.useState(false)
-  // const { user } = useAuth()
-  const { id } = useParams()
-
-  console.log(formValues, column)
+  const [addTask, { isLoading }] = useCreateTaskMutation()
+  const toast = useToast()
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) =>
     setFormValues({
@@ -54,11 +56,37 @@ const NewTask = () => {
     })
   }
 
+  const handleChangeColumn = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const column = columns?.find((i) => i._id === event.target.value)!
+    setColumn(column)
+  }
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
-    setError(null)
-    if (!formValues.title || !formValues.priority) return
+    if (!formValues.title || !formValues.priority || !column) return alert("x")
+
+    const handleAddTask = async () =>
+      addTask({ ...formValues, columnId: column?._id!, projectId: id }).unwrap()
+
+    handleAddTask()
+      .then((success) => {
+        setFormValues(initialFormValues)
+        toast({
+          title: "Success 💪 ",
+          duration: 1300,
+          description: "New task was added successfully",
+          status: "success",
+          position: "bottom-end",
+          isClosable: true,
+        })
+        return onClose()
+      })
+      .catch((err) => console.log(err))
   }
+
+  React.useEffect(() => {
+    if (columns) setColumn(columns[0])
+  }, [columns])
 
   return (
     <>
@@ -68,8 +96,11 @@ const NewTask = () => {
           alignItems="center"
           px={4}
           py={2}
+          bg="blueLight"
           borderRadius="md"
-          _hover={{ bg: "gray.400", cursor: "pointer" }}
+          color="#fafafa"
+          boxShadow="2xl"
+          _hover={{ bg: "blue.300", cursor: "pointer" }}
           onClick={onOpen}
         >
           <AddIcon />
@@ -77,9 +108,8 @@ const NewTask = () => {
         </Container>
       </Box>
 
-      {/* Modal */}
-
       <Modal
+        motionPreset="scale"
         blockScrollOnMount={false}
         isOpen={isOpen}
         size="xl"
@@ -91,11 +121,12 @@ const NewTask = () => {
           <ModalCloseButton />
           <ModalBody>
             <FormControl>
-              <FormLabel>Task's name</FormLabel>
+              <FormLabel>Task's title</FormLabel>
               <Input
                 variant={"filled"}
                 type="text"
                 name="title"
+                value={formValues.title}
                 autoComplete="off"
                 onChange={handleChange}
               />
@@ -111,6 +142,7 @@ const NewTask = () => {
                 variant={"filled"}
                 type="text"
                 name="description"
+                value={formValues.description}
                 autoComplete="off"
                 onChange={handleChange}
               />
@@ -119,6 +151,24 @@ const NewTask = () => {
               gap={{ base: "0", md: "20px" }}
               direction={{ base: "column", md: "row" }}
             >
+              <FormControl mt={4}>
+                <FormLabel>Board</FormLabel>
+
+                <Select
+                  icon={<StarIcon />}
+                  iconSize={"sm"}
+                  variant={"filled"}
+                  name="priority"
+                  value={column?._id}
+                  onChange={handleChangeColumn}
+                >
+                  {columns?.map((item) => (
+                    <option key={item?._id} value={item?._id}>
+                      {item?.name}
+                    </option>
+                  ))}
+                </Select>
+              </FormControl>
               <FormControl mt={4}>
                 <FormLabel>Priority</FormLabel>
 
@@ -136,22 +186,6 @@ const NewTask = () => {
                   <option value="Urgent">Urgent</option>
                 </Select>
               </FormControl>
-              <FormControl mt={4}>
-                <FormLabel>Column</FormLabel>
-
-                <Select
-                  icon={<StarIcon />}
-                  iconSize={"sm"}
-                  variant={"filled"}
-                  name="priority"
-                  value={column}
-                  onChange={(e) => setColumn(e.target.value)}
-                >
-                  {columns.map((item) => (
-                    <option value={item}>{item}</option>
-                  ))}
-                </Select>
-              </FormControl>
             </Flex>
           </ModalBody>
 
@@ -159,7 +193,12 @@ const NewTask = () => {
             <Button colorScheme="blue" mr={3} onClick={onClose}>
               Close
             </Button>
-            <Button variant="solid" colorScheme={"green"} type="submit">
+            <Button
+              variant="solid"
+              colorScheme={"green"}
+              type="submit"
+              disabled={isLoading}
+            >
               Create
             </Button>
           </ModalFooter>

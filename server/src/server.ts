@@ -11,6 +11,7 @@ import passportConfig from "./lib/passport"
 import user from "./routes/user.route"
 import projects from "./routes/projects.route"
 import tasks from "./routes/tasks.route"
+import column from "./routes/column.route"
 
 const app = express()
 
@@ -19,19 +20,18 @@ app.use(express.json({ limit: "16mb" }))
 app.use(cors({ credentials: true, origin: true }))
 app.options("*", cors)
 
-app.use((req, res, next) => {
-  console.log("middleware")
-  next()
-})
-
 //routes
 app.use("/auth", user)
 app.use("/projects", passport.authenticate("jwt", { session: false }), projects)
+app.use("/column", passport.authenticate("jwt", { session: false }), column)
 app.use("/tasks", passport.authenticate("jwt", { session: false }), tasks)
 
 //passport
 passportConfig(passport)
 app.use(passport.initialize())
+
+//Clear console
+console.clear()
 
 connectToDatabase()
   .then(() => {

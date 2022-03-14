@@ -19,18 +19,21 @@ export default async function (
   if (!projectId)
     return res.status(422).json({ message: "Project's Id not specified" })
 
-  const { id } = decodeToken(req.get("authorization")!.split(" ")[1])
+  const { id, email } = decodeToken(req.get("authorization")!.split(" ")[1])
 
   const project = await Project.findOne({ _id: projectId })
+    .populate([
+      { path: "columns", model: "columns" },
+      { path: "columns", populate: { path: "tasks", model: "tasks" } },
+    ])
+    .exec()
 
   if (!project) {
     return res.status(407).json({ message: "Project doesn't exist" })
   }
 
   const isUserAllowedToAddNewTask =
-    project.collaborators.filter(
-      (i: any) => i.user == id && (i.role === "Owner" || i.role === "Moderator")
-    ).length > 0
+    project.collaborators.filter((i: any) => i.user == id).length > 0
 
   //this user doesn't have a permission to add task
   if (!isUserAllowedToAddNewTask) {
@@ -39,6 +42,7 @@ export default async function (
 
   res.locals.project = project
   res.locals.id = id
+  res.locals.email = email
 
   next()
 }

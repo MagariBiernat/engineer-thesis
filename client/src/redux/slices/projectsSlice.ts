@@ -6,11 +6,15 @@ import { projectsApi } from "redux/services/projects"
 const initialState = {
   ownerProjects: [],
   collaboratorsProjects: [],
-  error: undefined,
+  error: "",
+  shouldRefetch: true,
+  successCreatingProject: false,
 } as {
   ownerProjects: projectInterface[]
   collaboratorsProjects: projectInterface[]
-  error?: string
+  error: string
+  shouldRefetch: boolean
+  successCreatingProject: boolean
 }
 
 const slice = createSlice({
@@ -23,7 +27,8 @@ const slice = createSlice({
       (state, action) => {
         state.ownerProjects = action.payload.data.owner
         state.collaboratorsProjects = action.payload.data.collaborator
-        state.error = undefined
+        state.error = ""
+        state.shouldRefetch = false
       }
     )
     builder.addMatcher(
@@ -37,9 +42,8 @@ const slice = createSlice({
     builder.addMatcher(
       projectsApi.endpoints.createProject.matchFulfilled,
       (state, action) => {
-        const isPrivate = action.payload.project.isPersonal
-        const project = action.payload.project
-        state.ownerProjects = [project, ...state.ownerProjects]
+        state.shouldRefetch = true
+        state.successCreatingProject = true
       }
     )
   },

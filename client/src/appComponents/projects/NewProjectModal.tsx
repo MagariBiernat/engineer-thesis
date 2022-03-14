@@ -13,6 +13,8 @@ import {
   FormLabel,
   FormErrorMessage,
   Checkbox,
+  toast,
+  useToast,
 } from "@chakra-ui/react"
 import { useCreateProjectMutation } from "redux/services/projects"
 
@@ -29,9 +31,11 @@ const initialValues = {
 
 const NewProjectModal = ({ isOpen, onClose }: Props) => {
   const [formValues, setFormValues] = React.useState(initialValues)
-  const [createProject, { isLoading, isSuccess }] = useCreateProjectMutation()
+  const [createProject] = useCreateProjectMutation()
+  const [isLoading, setIsLoading] = React.useState(false)
   const [error, setError] = React.useState<unknown>()
   const [nameError, setNameError] = React.useState("")
+  const toast = useToast()
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) =>
     setFormValues({
@@ -45,16 +49,37 @@ const NewProjectModal = ({ isOpen, onClose }: Props) => {
     async (event: React.FormEvent) => {
       event.preventDefault()
       setError(null)
-      if (!formValues.name) return
-
-      handleCreateProject()
+      if (!formValues.name) return alert("Fields are empty")
+      setIsLoading(true)
+      try {
+        handleCreateProject()
+          .then(() => {
+            toast({
+              title: "Success 💪 ",
+              duration: 4500,
+              description: "Successfully created project",
+              status: "success",
+              position: "bottom-end",
+              isClosable: true,
+            })
+            onClose()
+          })
+          .catch(() => {
+            toast({
+              title: "Error  ❗️❗️ ",
+              duration: 4500,
+              description: "An error occurred  👀",
+              status: "warning",
+              position: "bottom-end",
+              isClosable: true,
+            })
+          })
+      } finally {
+        setIsLoading(false)
+      }
     },
     [formValues]
   )
-
-  React.useEffect(() => {
-    isSuccess && onClose()
-  }, [isSuccess])
 
   const isSubmitDisabled = !formValues.name || isLoading
   return (

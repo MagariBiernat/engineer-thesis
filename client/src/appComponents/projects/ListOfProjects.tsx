@@ -1,25 +1,44 @@
-import { Box, Flex, Text } from "@chakra-ui/react"
+import { Box, Divider, Flex, Text, useColorModeValue } from "@chakra-ui/react"
 import { projectInterface } from "lib/types/project"
 import React from "react"
 import { useTypedSelector } from "redux/store"
 import Project from "./ProjectElement"
+import { AiOutlineProject } from "react-icons/ai"
 
 const ListOfProjects: React.FunctionComponent = () => {
   const { ownerProjects, collaboratorsProjects } = useTypedSelector(
     (state) => state.projects
   )
 
+  const headingColor = useColorModeValue(
+    "rgb(128,136,154)",
+    "rgba(242,245,248, .6)"
+  )
+
+  console.log(ownerProjects)
+
   return (
     <>
-      <Box p={4}>
-        <Text pl={4}>Your projects</Text>
+      <Divider py={2} />
+      <Box p={4} color={headingColor}>
+        <Flex
+          direction="row"
+          alignItems="center"
+          color={headingColor}
+          pb={4}
+          pl={2}
+        >
+          <AiOutlineProject color="#007bb2" size={22} />
+          <Text ml={2} fontSize="lg">
+            Your projects
+          </Text>
+        </Flex>
         <Flex
           align="center"
           flexWrap="wrap"
-          gap="20px"
-          justifyItems="flex-start"
+          gap={{ base: "4%", md: "25px" }}
+          justifyItems={{ base: "space-between", md: "flex-start" }}
           direction={{ base: "row" }}
-          p={4}
         >
           {ownerProjects.length > 0 ? (
             ownerProjects.map((item, index) => (
@@ -29,16 +48,26 @@ const ListOfProjects: React.FunctionComponent = () => {
             <NoProjects text="You don't own any projects" />
           )}
         </Flex>
-        <Text pl={4} pt={10}>
-          Projects You take part in
-        </Text>
+
+        <Divider my={4} mt={8} />
+        <Flex
+          direction="row"
+          alignItems="center"
+          color={headingColor}
+          pl={2}
+          pb={4}
+        >
+          <AiOutlineProject color="#007bb2" size={22} />
+          <Text ml={2} fontSize="lg">
+            Projects You take part in
+          </Text>
+        </Flex>
         <Flex
           align="center"
           flexWrap="wrap"
-          gap="20px"
+          gap="35px"
           justifyItems="flex-start"
           direction={{ base: "row" }}
-          p={4}
         >
           {collaboratorsProjects.length > 0 ? (
             collaboratorsProjects.map((item, index) => (

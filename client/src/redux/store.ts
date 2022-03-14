@@ -1,10 +1,15 @@
-import { configureStore, ConfigureStoreOptions } from "@reduxjs/toolkit"
+import {
+  configureStore,
+  ConfigureStoreOptions,
+  current,
+} from "@reduxjs/toolkit"
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux"
 import { persistStore } from "redux-persist"
 import persistCombineReducers from "redux-persist/lib/persistCombineReducers"
 import storage from "redux-persist/lib/storage"
 import { authApi } from "./services/auth"
 import { projectsApi } from "./services/projects"
+import { currentProjectApi } from "./services/currentProject"
 import auth from "./slices/authSlice"
 import projects from "./slices/projectsSlice"
 import currentProject from "./slices/currentProject"
@@ -19,6 +24,7 @@ const persistConfig = {
 const reducers = persistCombineReducers(persistConfig, {
   [authApi.reducerPath]: authApi.reducer,
   [projectsApi.reducerPath]: projectsApi.reducer,
+  [currentProjectApi.reducerPath]: currentProjectApi.reducer,
   projects,
   currentProject,
   auth,
@@ -32,7 +38,8 @@ export const createStore = (
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware()
         .concat(authApi.middleware)
-        .concat(projectsApi.middleware),
+        .concat(projectsApi.middleware)
+        .concat(currentProjectApi.middleware),
     ...options,
   })
 

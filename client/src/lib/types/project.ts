@@ -16,7 +16,7 @@ export interface taskInterface {
   description: string
   priority: string
   assignedTo: userInterface
-  comments: commentsInterface
+  comments: commentsInterface[]
 }
 
 export interface columnInterface {
@@ -33,7 +33,7 @@ export interface projectInterface {
   description: string
   _id: string
   collaborators: Array<userInterface>
-  owner: userInterface
+  owner: userInterface | string
   //todo files interface
   files: Array<string>
   isPersonal: boolean

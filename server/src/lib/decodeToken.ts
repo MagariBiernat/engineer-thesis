@@ -5,6 +5,5 @@ export default function decodeToken(token: string): {
   email: string
 } {
   const decoded: any = jwtDecode(token)
-  console.log(decoded)
   return { id: decoded.id, email: decoded.email }
 }

@@ -1,127 +1,224 @@
 require("dotenv").config()
 
-import express, { NextFunction } from "express"
-
-import Project, { ColumnSchema } from "../models/Project.model"
-import decodeToken from "../lib/decodeToken"
-import {
-  ColumnSchemaInterface,
-  ProjectSchemaInterface,
-  TaskSchemaInterface,
-} from "../lib/interfaces/Project.interface"
+import express from "express"
+import { body, param, validationResult } from "express-validator"
+import { ProjectSchemaInterface } from "../lib/interfaces/Project.interface"
 import authorizeRole from "../lib/middleware/authorizeRole"
+import Column from "../models/Column.model"
+import Task from "../models/Task.model"
 const router = express.Router()
 
-//Create new task
+router.get(
+  "/:projectId/:taskId",
+  param("taskId", "Task's ID not specified").exists(),
 
-/*
+  async (req: express.Request, res) => {
+    const errors = validationResult(req)
 
-	@body
-		projectId
-		userId <- taken from token
-		description - not required
-    column -> name of columns in project
-		priority - enum ["Urgent","High","Normal","Low"]
-
-	CODE ERRORS: 
-		406 -> Required data not specified
-		407 -> Project doesn't exist !
-
-		403 -> User has no permissions
-
-*/
-
-router.post("/", authorizeRole, async (req, res) => {
-  //need projectId, usersId from token, task title, description, priority
-  const { title, column, description, priority } = req.body
-
-  //validate if any required value is empty
-  if (!title || !priority || !column) {
-    return res.status(406).json({ message: "No name specified" })
-  }
-
-  const project = res.locals.project as ProjectSchemaInterface
-
-  const columns = project.columns
-
-  const columnToUpdate = columns.find((i) => i.name === column)
-
-  console.log(columnToUpdate)
-  if (!columnToUpdate) return res.status(500).json({ message: "Error" })
-
-  try {
-    const newTask: Partial<TaskSchemaInterface> = {
-      title,
-      description,
-      priority,
+    if (!errors.isEmpty()) {
+      return res
+        .status(406)
+        .json({ message: "No name specified", errors: errors.array() })
     }
 
-    const result = await project.updateOne(
-      {
-        $push: {
-          "columns.$[outer].tasks": newTask,
+    const { taskId } = req.params
+    try {
+      const task = await Task.findById(taskId)
+
+      return res.json(task)
+    } catch (err) {
+      return res.status(500).json({ message: "Error occurred", error: err })
+    }
+  }
+)
+
+router.post(
+  "/",
+  body("title").isString().isLength({ min: 1 }),
+  body("columnId").isString().exists(),
+  body("priority").exists(),
+  authorizeRole,
+  async (req, res) => {
+    const errors = validationResult(req)
+
+    if (!errors.isEmpty()) {
+      return res
+        .status(406)
+        .json({ message: "No name specified", errors: errors.array() })
+    }
+
+    const { title, columnId, description, priority } = req.body
+
+    const columnToUpdate = await Column.findById(columnId)
+
+    if (!columnToUpdate) return res.status(500).json({ message: "Error" })
+
+    try {
+      const newTask = await Task.create({
+        title,
+        description,
+        priority,
+      })
+
+      columnToUpdate.tasks?.push(newTask)
+      await columnToUpdate.save()
+      return res.json({ message: "Successfully added task" })
+    } catch (err) {
+      console.log(err)
+      return res.status(500).json({ message: "Error", err })
+    }
+  }
+)
+
+router.post(
+  "/reorderColumns",
+  body("columnId", "Column ID must be specified").exists(),
+  body("sourceIndex", "Source ID must be specified").exists(),
+  body("destinationIndex", "Destination ID must be specified").exists(),
+  authorizeRole,
+  async (req, res) => {
+    const errors = validationResult(req)
+
+    if (!errors.isEmpty()) {
+      return res.status(406).json({ message: "Errors", errors: errors.array() })
+    }
+    const { columnId, sourceIndex, destinationIndex } = req.body
+
+    const project = res.locals.project as ProjectSchemaInterface
+
+    try {
+      const columnToMove = project.columns.find((i) => i._id == columnId)
+      if (!columnToMove) return res.status(500).json({ message: "Error" })
+
+      let colsReordered = project.columns
+      colsReordered.splice(sourceIndex, 1)
+      colsReordered.splice(destinationIndex, 0, columnToMove)
+
+      project.columns = colsReordered
+
+      console.log(colsReordered)
+      await project.updateOne({
+        $set: {
+          columns: colsReordered,
         },
-      },
-      {
-        arrayFilters: [{ "outer._id": columnToUpdate._id }],
+      })
+      return res.json({ message: "Success" })
+    } catch (err) {
+      return res.status(500).json({ message: "Error occurred" })
+    }
+  }
+)
+
+router.post(
+  "/reorderTask",
+  body("taskId", "Task ID must be specified").exists(),
+  body("sourceColumnId", "Column ID must be specified").exists(),
+  body("sourceIndex", "Source Index must be specified").exists(),
+  body("destinationIndex", "Destination Index must be specified").exists(),
+  authorizeRole,
+  async (req, res) => {
+    const errors = validationResult(req)
+
+    if (!errors.isEmpty()) {
+      return res.status(406).json({ message: "Errors", errors: errors.array() })
+    }
+
+    const {
+      sourceColumnId,
+      destinationColumnId = "",
+      sourceIndex,
+      destinationIndex,
+
+      taskId,
+    } = req.body as {
+      sourceColumnId: string
+      destinationColumnId: string
+      sourceIndex: number
+      destinationIndex: number
+      taskId: string
+    }
+
+    const project = res.locals.project as ProjectSchemaInterface
+
+    try {
+      if (destinationColumnId) {
+        let sourceColumn = await Column.findById(sourceColumnId)
+          .populate("tasks")
+          .exec()
+        let destinationColumn = await Column.findById(destinationColumnId)
+          .populate("tasks")
+          .exec()
+
+        if (!sourceColumn || !destinationColumn) return res.status(500).json({})
+        const copiedItems = sourceColumn.tasks
+        const destinationCopiedItems = destinationColumn.tasks
+
+        const [removed] = copiedItems!.splice(sourceIndex, 1)
+
+        destinationCopiedItems!.splice(destinationIndex, 0, removed)
+
+        await sourceColumn
+          .updateOne({
+            $set: {
+              tasks: copiedItems,
+            },
+          })
+          .then(async () => {
+            await destinationColumn!.updateOne({
+              $set: {
+                tasks: destinationCopiedItems,
+              },
+            })
+          })
+      } else {
+        let sourceColumn = await Column.findById(sourceColumnId)
+          .populate("tasks")
+          .exec()
+
+        if (!sourceColumn) return res.status(500).json({})
+
+        let copiedItems = sourceColumn.tasks!
+        const [removed] = copiedItems.splice(sourceIndex, 1)
+
+        copiedItems!.splice(destinationIndex, 0, removed)
+
+        await sourceColumn.updateOne({ $set: { tasks: copiedItems } })
       }
-    )
 
-    return res.json({ result })
-  } catch (err) {
-    console.log(err)
-    return res.status(500).json({ message: "Error", err })
+      return res.json({ message: "Success" })
+    } catch (err) {
+      console.log(err)
+      return res.status(500).json({ message: "Error", error: err })
+    }
   }
-})
+)
 
-//new column
-router.post("/column", authorizeRole, async (req, res) => {
-  const { projectId, columnName } = req.body
+router.put(
+  "/assign",
+  body("userId", "User ID not specified").exists(),
+  authorizeRole,
+  async (req, res) => {
+    const errors = validationResult(req)
 
-  if (!projectId || !columnName)
-    return res.status(422).json({ message: "Required fields are empty" })
-
-  const project = res.locals.project as ProjectSchemaInterface
-  const id = res.locals.id
-
-  const newColumn: Partial<ColumnSchemaInterface> = {
-    name: columnName,
-    hidden: false,
-    createdBy: id,
+    if (!errors.isEmpty()) {
+      return res.status(406).json({ message: "Errors", errors: errors.array() })
+    }
   }
-
-  await project
-    .updateOne({ $push: { columns: newColumn } })
-    .then(() => res.json({ message: "Column created successfully" }))
-    .catch((err) =>
-      res.status(500).json({ message: "Error occurred", error: err })
-    )
-})
-
-router.delete("/column", authorizeRole, async (req, res) => {
-  const { projectId, columnId } = req.body
-
-  if (!projectId || !columnId)
-    return res.status(422).json({ message: "Required fields are empty" })
-
-  const project = res.locals.project as ProjectSchemaInterface
-
-  const column = project.columns.filter((i) => i._id === columnId)
-
-  project
-    .update({ $popAll: { columns: column } })
-    .then(() => res.json({ message: "Column successfully removed" }))
-    .catch((err) =>
-      res.status(500).json({ message: "Error occurred", error: err })
-    )
-})
+)
 
 //update reordered tasks
-router.put("/", authorizeRole, async (req, res) => {
-  const { projectId, columnId, taskId } = req.body
 
-  if (!projectId || !columnId || !taskId)
-    return res.status(422).json({ message: "Required fields are empty" })
-})
+router.delete(
+  "/",
+  body("taskId", "Task ID not specified"),
+  authorizeRole,
+  async (req, res) => {
+    const errors = validationResult(req)
+
+    if (!errors.isEmpty()) {
+      return res.status(406).json({ message: "Errors", errors: errors.array() })
+    }
+  }
+)
 
 export default router

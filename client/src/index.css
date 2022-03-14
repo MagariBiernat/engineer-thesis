@@ -13,9 +13,6 @@ code {
     "Courier New", monospace;
 }
 
-* {
-  font-family: "Poppins";
-}
 .filterblur4 {
   backdrop-filter: blur(4px);
 }

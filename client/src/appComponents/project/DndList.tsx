@@ -2,26 +2,31 @@ import { Flex } from "@chakra-ui/react"
 import { columnInterface } from "lib/types/project"
 import React from "react"
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd"
+import { useParams } from "react-router-dom"
+import {
+  useMoveTaskMutation,
+  useReorderColumnMutation,
+} from "redux/services/currentProject"
 import List from "./dnd/List"
 
 interface Props {
-  columns: columnInterface[]
-  setColumns: React.Dispatch<React.SetStateAction<columnInterface[]>>
+  columnsState: columnInterface[]
 }
 
-const DndList = ({ columns, setColumns }: Props) => {
-  // console.log(columns)
+const DndList = ({ columnsState }: Props) => {
+  const { id = "" } = useParams()
+  const [columns, setColumns] = React.useState(columnsState)
+  const [moveTask] = useMoveTaskMutation()
+  const [reorderColumn] = useReorderColumnMutation()
 
-  console.log(columns)
+  React.useEffect(() => {
+    columnsState && setColumns(columnsState)
+  }, [columnsState])
 
   const onDragEnd = (result: DropResult) => {
-    console.log(result)
-
     if (!result.destination) return
 
     const { source, destination, draggableId, type } = result
-
-    //columnReorder
 
     if (type === "column") {
       const columnToMove = columns.find((i) => i._id === draggableId)!
@@ -30,13 +35,21 @@ const DndList = ({ columns, setColumns }: Props) => {
       colsReordered.splice(source.index, 1)
       colsReordered.splice(destination.index, 0, columnToMove)
 
+      const move = async () =>
+        reorderColumn({
+          destinationIndex: destination.index,
+          columnId: draggableId,
+          sourceIndex: source.index,
+          projectId: id,
+        })
+
+      move()
       setColumns(colsReordered)
     }
 
     //task reorder
     if (type === "task") {
       if (destination.droppableId === source.droppableId) {
-        // same column
         const sourceColumn = columns.find((i) => i._id === source.droppableId)!
 
         const copiedItems = [...sourceColumn.tasks]
@@ -51,9 +64,17 @@ const DndList = ({ columns, setColumns }: Props) => {
           return i
         })
 
-        // TODO: update redux state
-
         setColumns(updatedColumns)
+        const move = async () =>
+          moveTask({
+            destinationIndex: destination.index,
+            sourceColumnId: source.droppableId,
+            sourceIndex: source.index,
+            taskId: result.draggableId,
+            projectId: id,
+          })
+
+        move()
       } else {
         const sourceColumn = columns.find((i) => i._id === source.droppableId)!
         const destinationColumn = columns.find(
@@ -76,9 +97,18 @@ const DndList = ({ columns, setColumns }: Props) => {
           return i
         })
 
-        // TODO: update redux state
-
         setColumns(updatedColumns)
+
+        const move = async () =>
+          moveTask({
+            destinationIndex: destination.index,
+            sourceColumnId: source.droppableId,
+            destinationColumnId: destination.droppableId,
+            sourceIndex: source.index,
+            taskId: result.draggableId,
+            projectId: id,
+          })
+        move()
       }
     }
   }
@@ -86,11 +116,10 @@ const DndList = ({ columns, setColumns }: Props) => {
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <Droppable droppableId="all-columns" direction="horizontal" type="column">
-        {(provided) => (
+        {(provided, snapshot) => (
           <Flex
             {...provided.droppableProps}
             ref={provided.innerRef}
-            gap="12px"
             mt={12}
             justifyContent="flex-start"
             alignItems="flex-start"
@@ -98,6 +127,7 @@ const DndList = ({ columns, setColumns }: Props) => {
             {columns?.map((column, index) => (
               <List key={column._id} column={column} index={index} />
             ))}
+            {!snapshot.isDraggingOver && <List newColumn />}
             {provided.placeholder}
           </Flex>
         )}
