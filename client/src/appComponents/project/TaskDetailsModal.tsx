@@ -16,11 +16,14 @@ import {
   WrapItem,
   Avatar,
 } from "@chakra-ui/react"
+import { QueryStatus } from "@reduxjs/toolkit/dist/query"
 import React from "react"
 import { FaTasks } from "react-icons/fa"
 import { MdOutlineSort } from "react-icons/md"
 import { useParams } from "react-router-dom"
 import { useGetTaskQuery } from "redux/services/currentProject"
+import { useTypedSelector } from "redux/store"
+import TaskDetailsModalComments from "./TaskDetailsModalComments"
 
 interface Props {
   taskId: string
@@ -30,10 +33,15 @@ interface Props {
 
 const TaskDetailsModal: React.FC<Props> = ({ taskId, isOpen, onClose }) => {
   const { id = "" } = useParams()
-  const { data, isLoading, isFetching, isError, isSuccess } = useGetTaskQuery({
-    projectId: id,
-    taskId,
-  })
+  const { data, isLoading, isFetching, isError, isSuccess, refetch } =
+    useGetTaskQuery({
+      projectId: id,
+      taskId,
+    })
+
+  const handleRefetch = () => refetch()
+
+  console.log(taskId)
 
   return (
     <Modal
@@ -92,37 +100,11 @@ const TaskDetailsModal: React.FC<Props> = ({ taskId, isOpen, onClose }) => {
                     </Flex>
                   </Flex>
 
-                  <Flex align={"center"} gap="18px" alignItems="flex-start">
-                    <MdOutlineSort size={24} />
-                    <Flex direction="column" pb={4}>
-                      <Text>Comments</Text>
-                      {data.comments.length === 0 && (
-                        <Text my={4} fontSize="x-small">
-                          No comments yet
-                        </Text>
-                      )}
-                    </Flex>
-                  </Flex>
-                  <InputGroup
-                    flexDirection="row"
-                    alignItems="center"
-                    gap="18px"
-                    mt={4}
-                  >
-                    <WrapItem>
-                      <Avatar
-                        size="sm"
-                        name="Kola Tioluwani"
-                        src="https://bit.ly/tioluwani-kolawole"
-                      />
-                    </WrapItem>
-                    <Input
-                      w="full"
-                      fontSize="smaller"
-                      variant="filled"
-                      placeholder="Write a comment"
-                    />
-                  </InputGroup>
+                  <TaskDetailsModalComments
+                    comments={data?.comments}
+                    taskId={taskId}
+                    handleRefetch={handleRefetch}
+                  />
                 </Flex>
 
                 {/* sidebar right */}
@@ -130,7 +112,6 @@ const TaskDetailsModal: React.FC<Props> = ({ taskId, isOpen, onClose }) => {
                   <Button variant="outline">Delete task</Button>
                   <Button> Assign task</Button>
                   <Button>Edit</Button>
-                  todo
                 </Flex>
               </Flex>
             </ModalBody>

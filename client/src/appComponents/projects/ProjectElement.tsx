@@ -28,7 +28,6 @@ const Project: React.FunctionComponent<ProjectProps> = ({ item }) => {
     ?.map((i) => i.tasks.length)
     .reduce((a, b) => a + b, 0)
 
-  console.log(tasksCount)
   return (
     <Flex
       pos="relative"

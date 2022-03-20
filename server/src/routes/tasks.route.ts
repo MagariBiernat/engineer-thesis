@@ -6,6 +6,7 @@ import { ProjectSchemaInterface } from "../lib/interfaces/Project.interface"
 import authorizeRole from "../lib/middleware/authorizeRole"
 import Column from "../models/Column.model"
 import Task from "../models/Task.model"
+import mongoose from "mongoose"
 const router = express.Router()
 
 router.get(
@@ -22,8 +23,13 @@ router.get(
     }
 
     const { taskId } = req.params
+
+    const id = mongoose.Types.ObjectId(taskId)
     try {
-      const task = await Task.findById(taskId)
+      const task = await Task.findById(id).populate([
+        { path: "comments", model: "comments" },
+        { path: "comments", populate: { path: "commentedBy", model: "users" } },
+      ])
 
       return res.json(task)
     } catch (err) {

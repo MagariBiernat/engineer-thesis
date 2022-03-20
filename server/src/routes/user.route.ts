@@ -25,7 +25,7 @@ router.post(
     User.findOne({ email }).then((user: any) => {
       if (!user) {
         return res
-          .status(400)
+          .status(401)
           .json({ wrongCredentials: "Email or password incorrect" })
       }
 
@@ -45,7 +45,7 @@ router.post(
             (err, token) => {
               if (err) {
                 return res
-                  .status(400)
+                  .status(500)
                   .json({ error: err, message: "Problem with receiving token" })
               }
 

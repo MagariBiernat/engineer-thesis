@@ -1,6 +1,7 @@
-import { createSlice, current } from "@reduxjs/toolkit"
-import { build } from "@reduxjs/toolkit/dist/query/core/buildMiddleware/cacheLifecycle"
+import { createSlice } from "@reduxjs/toolkit"
+
 import { projectInterface } from "lib/types/project"
+import { commentsApi } from "redux/services/comments"
 import { currentProjectApi } from "redux/services/currentProject"
 import { projectsApi } from "redux/services/projects"
 
@@ -92,6 +93,18 @@ const slice = createSlice({
 
     builder.addMatcher(
       currentProjectApi.endpoints.reorderColumn.matchFulfilled,
+      (state) => {
+        state.shouldRefetch = true
+      }
+    )
+    builder.addMatcher(
+      commentsApi.endpoints.addComment.matchFulfilled,
+      (state) => {
+        state.shouldRefetch = true
+      }
+    )
+    builder.addMatcher(
+      commentsApi.endpoints.deleteComment.matchFulfilled,
       (state) => {
         state.shouldRefetch = true
       }

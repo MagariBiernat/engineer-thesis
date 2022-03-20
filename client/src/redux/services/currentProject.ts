@@ -78,6 +78,14 @@ export const currentProjectApi = createApi({
         body,
       }),
     }),
+    addComment: build.mutation<
+      { message: string },
+      { content: string; taskId: string }
+    >({
+      query: (body) => ({
+        url: "",
+      }),
+    }),
   }),
 })
 

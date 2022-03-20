@@ -5,9 +5,11 @@ export interface userInterface {
 }
 
 export interface commentsInterface {
+  _id: string
   content: string
   commentedBy: userInterface
   likedBy: userInterface[]
+  createdAt: Date
 }
 
 export interface taskInterface {

@@ -12,6 +12,7 @@ import user from "./routes/user.route"
 import projects from "./routes/projects.route"
 import tasks from "./routes/tasks.route"
 import column from "./routes/column.route"
+import comments from "./routes/comments.route"
 
 const app = express()
 
@@ -25,6 +26,7 @@ app.use("/auth", user)
 app.use("/projects", passport.authenticate("jwt", { session: false }), projects)
 app.use("/column", passport.authenticate("jwt", { session: false }), column)
 app.use("/tasks", passport.authenticate("jwt", { session: false }), tasks)
+app.use("/comments", passport.authenticate("jwt", { session: false }), comments)
 
 //passport
 passportConfig(passport)

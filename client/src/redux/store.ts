@@ -13,6 +13,7 @@ import { currentProjectApi } from "./services/currentProject"
 import auth from "./slices/authSlice"
 import projects from "./slices/projectsSlice"
 import currentProject from "./slices/currentProject"
+import { commentsApi } from "./services/comments"
 
 const persistConfig = {
   key: "engineerThesisRoot",
@@ -25,6 +26,7 @@ const reducers = persistCombineReducers(persistConfig, {
   [authApi.reducerPath]: authApi.reducer,
   [projectsApi.reducerPath]: projectsApi.reducer,
   [currentProjectApi.reducerPath]: currentProjectApi.reducer,
+  [commentsApi.reducerPath]: commentsApi.reducer,
   projects,
   currentProject,
   auth,
@@ -39,7 +41,8 @@ export const createStore = (
       getDefaultMiddleware()
         .concat(authApi.middleware)
         .concat(projectsApi.middleware)
-        .concat(currentProjectApi.middleware),
+        .concat(currentProjectApi.middleware)
+        .concat(commentsApi.middleware),
     ...options,
   })
 
