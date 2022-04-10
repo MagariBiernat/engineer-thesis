@@ -69,6 +69,7 @@ const Project = () => {
   const { refetch } = useGetProjectQuery({
     id,
   })
+
   const isLoading = useTypedSelector(
     (state) =>
       Object.values(state.currentProjectsApi.queries).some(

@@ -36,7 +36,6 @@ const NewColumn = () => {
   const [isExpanded, setIsExpanded] = React.useState(false)
   const [newColumnName, setNewColumnName] = React.useState("")
   const [newColumn] = useCreateNewColumnInProjectMutation()
-  const { refetch } = useGetProjectQuery({ id })
   const containerBackground = useColorModeValue(
     "rgb(241,243,245)",
     "rgba(37,41,48)"
@@ -65,7 +64,7 @@ const NewColumn = () => {
         toast({
           title: "Success 💪 ",
           duration: 9000,
-          description: "New task was added successfully",
+          description: "New column was added successfully",
           status: "success",
           position: "bottom-end",
           isClosable: true,

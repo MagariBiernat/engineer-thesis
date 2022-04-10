@@ -55,8 +55,6 @@ router.get("/:projectId", async (req, res) => {
   if (!projectId)
     return res.status(406).json({ message: "Something went wrong" })
 
-  //get user's id from token
-  const { id } = decodeToken(req.get("authorization")!.split(" ")[1])
 
   try {
     const project = await Project.findById(projectId)

@@ -31,7 +31,6 @@ const slice = createSlice({
     builder.addMatcher(
       authApi.endpoints.login.matchRejected,
       (state, action) => {
-        // Error 400 -> Wrong credentials
         if (action.payload?.status === 400) state.error = "Wrong credentials"
       }
     )

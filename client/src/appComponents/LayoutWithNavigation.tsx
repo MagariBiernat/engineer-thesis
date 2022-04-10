@@ -36,6 +36,7 @@ import { useLocation, useNavigate } from "react-router"
 import ThemeToggleButton from "components/ThemeToggleButton"
 import { useAppDispatch } from "redux/store"
 import { logout } from "redux/slices/authSlice"
+import {reset} from 'redux/slices/projectsSlice'
 import { User } from "redux/services/auth"
 
 interface LinkItemProps {
@@ -44,8 +45,7 @@ interface LinkItemProps {
   href: string
 }
 const LinkItems: Array<LinkItemProps> = [
-  { name: "Dashboard", icon: FiHome, href: "/app/" },
-  { name: "Projects", icon: FiTrendingUp, href: "/app/projects" },
+  { name: "Projects", icon: FiTrendingUp, href: "/app" },
 ]
 
 export default function Layout({
@@ -58,7 +58,8 @@ export default function Layout({
   const dispatch = useAppDispatch()
   const { isOpen, onOpen, onClose } = useDisclosure()
 
-  const handleLogoutUser = () => {
+  const handleLogoutUser = async () => {
+    await dispatch(reset())
     return dispatch(logout())
   }
 
@@ -135,9 +136,6 @@ const NavItem = ({ icon, children, href, name, ...rest }: NavItemProps) => {
     "rgb(128,136,154)",
     "rgba(242,245,248, .6)"
   )
-  if (location.pathname === "/app" && name === "Dashboard") {
-    active = true
-  }
   return (
     <Link style={{ textDecoration: "none" }}>
       <Flex

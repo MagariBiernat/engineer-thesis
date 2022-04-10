@@ -27,8 +27,7 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<Dashboard />} />
-          <Route path="projects" element={<Projects />} />
+          <Route index element={<Projects />} />
           <Route path="/app/project/:id" element={<Project />} />
         </Route>
       </Routes>

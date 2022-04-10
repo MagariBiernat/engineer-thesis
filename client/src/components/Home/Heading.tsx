@@ -1,5 +1,6 @@
-import { Stack, Heading, Text, Button, Flex } from "@chakra-ui/react"
+import { Stack, Heading, Text, Button, Flex, Image } from "@chakra-ui/react"
 import React from "react"
+import img from "./../../undraw.svg"
 
 const index = () => {
   return (
@@ -7,7 +8,7 @@ const index = () => {
       textAlign={"center"}
       align={"center"}
       spacing={{ base: 8, md: 10 }}
-      py={{ base: 20, md: 28 }}
+      pt={{ base: 14, md: 22 }}
     >
       <Heading
         fontWeight={600}
@@ -25,20 +26,13 @@ const index = () => {
         smart “Daily Agenda” every morning.
       </Text>
       <Stack spacing={6} direction={"row"}>
-        <Button
-          rounded={"full"}
-          px={6}
-          colorScheme={"orange"}
-          bg={"orange.400"}
-          _hover={{ bg: "orange.500" }}
-        >
-          Get started
-        </Button>
         <Button rounded={"full"} px={6}>
           Learn more
         </Button>
       </Stack>
-      <Flex w={"full"}>Image</Flex>
+      <Flex p="0" alignItems="center" justifyContent={"center"}>
+        <Image src={img} alt="undraw" maxH="300px" />
+      </Flex>
     </Stack>
   )
 }

@@ -108,11 +108,7 @@ const TaskDetailsModal: React.FC<Props> = ({ taskId, isOpen, onClose }) => {
                 </Flex>
 
                 {/* sidebar right */}
-                <Flex direction={"column"} maxW="20%" gap="6px">
-                  <Button variant="outline">Delete task</Button>
-                  <Button> Assign task</Button>
-                  <Button>Edit</Button>
-                </Flex>
+                <Flex direction={"column"} maxW="20%" gap="6px"></Flex>
               </Flex>
             </ModalBody>
           </>

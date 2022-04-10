@@ -1,20 +1,9 @@
-import {
-  Box,
-  Flex,
-  useColorModeValue,
-  Text,
-  Menu,
-  Button,
-  MenuButton,
-  MenuItem,
-  MenuList,
-} from "@chakra-ui/react"
+import { Flex, useColorModeValue, Text } from "@chakra-ui/react"
 import { projectInterface } from "lib/types/project"
 import { useNavigate } from "react-router-dom"
 import { AiFillLock } from "react-icons/ai"
 import { BsPeople } from "react-icons/bs"
 import { BiTask } from "react-icons/bi"
-import { HamburgerIcon } from "@chakra-ui/icons"
 interface ProjectProps {
   item: projectInterface
 }

@@ -18,7 +18,7 @@ import ShareOptions from "./ShareOptions"
 const GoBack = () => {
   const navigate = useNavigate()
   const handleGoBack = () => {
-    navigate("/app/projects")
+    navigate("/app")
   }
 
   return (

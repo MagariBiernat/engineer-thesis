@@ -15,8 +15,6 @@ const ListOfProjects: React.FunctionComponent = () => {
     "rgba(242,245,248, .6)"
   )
 
-  console.log(ownerProjects)
-
   return (
     <>
       <Divider py={2} />

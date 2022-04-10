@@ -20,7 +20,9 @@ const initialState = {
 const slice = createSlice({
   name: "projects",
   initialState,
-  reducers: {},
+  reducers: {
+    reset: () => initialState,
+  },
   extraReducers: (builder) => {
     builder.addMatcher(
       projectsApi.endpoints.getAllProjects.matchFulfilled,
@@ -48,5 +50,7 @@ const slice = createSlice({
     )
   },
 })
+
+export const { reset } = slice.actions
 
 export default slice.reducer
